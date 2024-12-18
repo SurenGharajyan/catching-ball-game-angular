@@ -1,0 +1,46 @@
+<section class="game-wrapper">
+  <div
+    #contentWrapper
+    class="game-wrapper_content"
+  >
+    <div *ngIf="gameConfig && isGameInProgress" class="game-wrapper_content_info">
+      <span class="time">Time: {{ gameConfig.gameTime }}</span>
+      <span class="score">Score: {{ currentScore }}</span>
+    </div>
+
+    <div
+      *ngIf="isGameInProgress; else gameEnded"
+      class="game"
+    >
+      <div class="balls">
+        <img
+          *ngFor="let ball of fallingBalls"
+          [ngClass]="'ball ball-' + ball.x + ' game-object'"
+          [ngStyle]="{ left: ball.x + 'px', top: ball.y + 'px' }"
+          src="assets/icons/ball.png"
+          alt="ball"
+        />
+      </div>
+
+      <img
+        *ngIf="getPlayerMovement()"
+        #player
+        class="player game-object"
+        src="assets/icons/player.png"
+        alt="player"
+        [ngStyle]="{
+          left: getPlayerMovement().x + 'px',
+          transform: 'scale(' + getPlayerMovement().direction + ', 1)'
+        }"
+      />
+    </div>
+  </div>
+
+  <ng-template #gameEnded>
+    <div class="game-ended-content">
+      <p>Time is up!</p>
+      <p>Your score is: {{ currentScore }}</p>
+      <button (click)="handleRetry()">Retry</button>
+    </div>
+  </ng-template>
+</section>

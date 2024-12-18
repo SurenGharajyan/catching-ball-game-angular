@@ -1,0 +1,47 @@
+<section class="config-wrapper">
+  <form class="config-form" [formGroup]="gameConfigForm">
+    <div class="config-form_control">
+      <label for="fallingSpeed">Ball Falling Speed (px per second) [Rec. 1-800]</label>
+      <input
+        formControlName="fallingSpeed"
+        type="number"
+        id="fallingSpeed"
+        min="1"
+        (keydown)="validateNumericInput($event)"
+      />
+    </div>
+
+    <div class="config-form_control">
+      <label for="fallingFrequency">Delay Between Falling (milliseconds) [Rec. 500-Inf.]</label>
+      <input
+        formControlName="fallingFrequency"
+        type="number"
+        id="fallingFrequency"
+        min="500"
+        (keydown)="validateNumericInput($event)"
+      />
+    </div>
+
+    <div class="config-form_control">
+      <label for="playerSpeed">Player Speed (px) [Rec. 5-80]</label>
+      <input
+        formControlName="playerSpeed"
+        type="number"
+        id="playerSpeed"
+        min="1"
+        (keydown)="validateNumericInput($event)"
+      />
+    </div>
+
+    <div class="config-form_control">
+      <label for="gameTime">Game Duration (milliseconds) [Rec. 2000-Inf.]</label>
+      <input
+        formControlName="gameTime"
+        type="number"
+        id="gameTime"
+        min="10000"
+        (input)="validateMinValue($event, 10000, gameConfigForm.get('gameTime'))"
+      />
+    </div>
+  </form>
+</section>
