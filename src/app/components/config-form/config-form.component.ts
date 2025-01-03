@@ -34,13 +34,13 @@ export class ConfigFormComponent implements OnInit, OnDestroy {
       fallingSpeed: [100, [Validators.required, Validators.min(1)]],
       fallingFrequency: [600, [Validators.required, Validators.min(500)]],
       playerSpeed: [25, [Validators.required, Validators.min(1)]],
-      gameTime: [50000, [Validators.required, Validators.min(10000)]]
+      gameTime: [60000, [Validators.required, Validators.min(10000)]]
     });
   }
 
   private subscribeToFormChanges(): void {
     this.gameConfigForm.valueChanges
-      .pipe(takeUntil(this.$destroy)) // Ensure unsubscription
+      .pipe(takeUntil(this.$destroy))
       .subscribe((value: GameConfiguration) => {
         this.gameService.updateConfig({
           fallingSpeed: +value.fallingSpeed,

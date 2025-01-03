@@ -1,9 +1,14 @@
-<section class="game-wrapper">
+<section
+  class="game-wrapper"
+>
   <div
     #contentWrapper
     class="game-wrapper_content"
   >
-    <div *ngIf="gameConfig && isGameInProgress" class="game-wrapper_content_info">
+    <div
+      *ngIf="gameConfig && isGameInProgress"
+      class="game-wrapper_content_info"
+    >
       <span class="time">Time: {{ gameConfig.gameTime }}</span>
       <span class="score">Score: {{ currentScore }}</span>
     </div>
@@ -14,7 +19,7 @@
     >
       <div class="balls">
         <img
-          *ngFor="let ball of fallingBalls"
+          *ngFor="let ball of getFallingBalls()"
           [ngClass]="'ball ball-' + ball.x + ' game-object'"
           [ngStyle]="{ left: ball.x + 'px', top: ball.y + 'px' }"
           src="assets/icons/ball.png"
@@ -23,7 +28,6 @@
       </div>
 
       <img
-        *ngIf="getPlayerMovement()"
         #player
         class="player game-object"
         src="assets/icons/player.png"

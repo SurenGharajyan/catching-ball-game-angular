@@ -3,13 +3,13 @@ import {Position} from "../types/@interfaces/position";
 export const checkCollision = (
   ballPosition: Position,
   playerPosition: Position,
-  playerHeight: number,
   playerWidth: number,
   ballSize: number
 ): boolean => {
+  const defaultTopPosition = 87;
   const vertCollapse =
-    ballPosition.y + playerHeight / 2 >= playerPosition.y &&
-    ballPosition.y - ballSize <= playerPosition.y;
+    ballPosition.y + defaultTopPosition + ballSize >= playerPosition.y &&
+    ballPosition.y <= playerPosition.y;
   const horizCollapse =
     ballPosition.x + ballSize >= playerPosition.x &&
     ballPosition.x - playerWidth <= playerPosition.x;

@@ -28,7 +28,6 @@ export class GamePlayModalComponent implements OnInit, AfterViewInit, OnDestroy 
   @ViewChild('player', { static: false })
   public player!: ElementRef<HTMLImageElement>;
 
-  public fallingBalls: Position[] = [];
   public currentScore: number = 0;
   public isGameInProgress = true;
 
@@ -40,10 +39,10 @@ export class GamePlayModalComponent implements OnInit, AfterViewInit, OnDestroy 
   private destroy$ = new Subject<void>();
 
   constructor(
+    private cdr: ChangeDetectorRef,
     private gameService: GameService,
     private mechanicService: MechanicService,
-    private webSocketService: WebSocketService,
-    private cdr: ChangeDetectorRef,
+    private webSocketService: WebSocketService
   ) {}
 
   public ngOnInit(): void {
@@ -56,16 +55,18 @@ export class GamePlayModalComponent implements OnInit, AfterViewInit, OnDestroy 
 
   @HostListener('window:keydown', ['$event'])
   protected onKeyDown(event: KeyboardEvent): void {
-    if (event.key === 'ArrowLeft') {
-      removeFocusFromInputs();
-      this.mechanicService.movePlayerLeft(this.gameConfig.playerSpeed);
-    } else if (event.key === 'ArrowRight') {
-      removeFocusFromInputs();
-      this.mechanicService.movePlayerRight(
-        this.player.nativeElement.offsetWidth,
-        this.gameContentWrapper.nativeElement.offsetWidth,
-        this.gameConfig.playerSpeed
-      );
+    if (this.isGameInProgress) {
+      if (event.key === 'ArrowLeft') {
+        removeFocusFromInputs();
+        this.mechanicService.movePlayerLeft(this.gameConfig.playerSpeed);
+      } else if (event.key === 'ArrowRight') {
+        removeFocusFromInputs();
+        this.mechanicService.movePlayerRight(
+          this.player.nativeElement.offsetWidth,
+          this.gameContentWrapper.nativeElement.offsetWidth,
+          this.gameConfig.playerSpeed
+        );
+      }
     }
   }
 
@@ -73,8 +74,12 @@ export class GamePlayModalComponent implements OnInit, AfterViewInit, OnDestroy 
     this.startGame();
   }
 
+  public getFallingBalls(): Position[] {
+    return this.mechanicService.fallingBalls;
+  }
+
   public getPlayerMovement(): PlayerMovement {
-    return this.mechanicService.playerMovement;
+    return this.mechanicService.playerMovement ?? {x: 0, direction: 1}
   }
 
   private startGame(): void {
@@ -82,13 +87,13 @@ export class GamePlayModalComponent implements OnInit, AfterViewInit, OnDestroy 
     this.initialGameTime = null;
     this.initializeGameConfig();
     this.startGameTimer();
+    console.info('GamePlayModalComponent.startGame', this.gameContentWrapper);
     this.mechanicService.playerMovement = { direction: 1, x: this.gameContentWrapper.nativeElement.offsetWidth / 2 };
     this.cdr.detectChanges();
     this.mechanicService.player = this.player.nativeElement;
   }
 
   private restartGame(isRestarting: boolean): void {
-    this.fallingBalls = [];
     this.mechanicService.stopGame();
     this.currentScore = 0;
     this.isGameInProgress = true;
@@ -185,7 +190,6 @@ export class GamePlayModalComponent implements OnInit, AfterViewInit, OnDestroy 
       .pipe(
         takeUntil(this.destroy$),
         tap((ballInfo): void => {
-          this.fallingBalls = ballInfo.balls;
           if (ballInfo.countingScore && ballInfo.countingScore > 0) {
             this.currentScore += ballInfo.countingScore;
             this.webSocketService.sendGameStateUpdate({

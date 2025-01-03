@@ -11,7 +11,7 @@ import { interval, Observable, ReplaySubject, Subject, Subscription, switchMap, 
 })
 export class MechanicService {
 
-  private fallingBalls: Position[] = [];
+  private _fallingBalls: Position[] = [];
   private ballSubject = new ReplaySubject<{ balls: Position[], countingScore?: number }>(1);
   private ballDataObservable = this.ballSubject.asObservable();
 
@@ -25,6 +25,10 @@ export class MechanicService {
   constructor(
     private gameService: GameService
   ) {}
+
+  public get fallingBalls(): Position[] {
+    return this._fallingBalls;
+  }
 
   public get fallingBallsData$(): Observable<{ balls: Position[], countingScore?: number }> {
     return this.ballDataObservable;
@@ -75,19 +79,19 @@ export class MechanicService {
 
   private animateFallingBalls(bottomY: number): void {
     const step = (): void => {
-      this.fallingBalls = this.fallingBalls.map((ball: Position) => ({
+      this._fallingBalls = this._fallingBalls.map((ball: Position) => ({
         ...ball,
         y: ball.y + this.currentFallingSpeed / 60,
       }));
 
       let scoreFromCollapsedBalls = 0;
 
-      this.fallingBalls = this.fallingBalls.filter((ball: Position) => ball.y <= bottomY);
+      this._fallingBalls = this._fallingBalls.filter((ball: Position) => ball.y <= bottomY);
 
       scoreFromCollapsedBalls = this.checkForCollisions();
 
       this.ballSubject.next({
-        balls: [...this.fallingBalls],
+        balls: [...this._fallingBalls],
         countingScore: scoreFromCollapsedBalls > 0 ? scoreFromCollapsedBalls : undefined,
       });
 
@@ -98,7 +102,7 @@ export class MechanicService {
   }
 
   public stopGame(): void {
-    this.fallingBalls = [];
+    this._fallingBalls = [];
   }
 
   private spawnNewBall(maxX: number): void {
@@ -106,8 +110,8 @@ export class MechanicService {
       x: randomIntFromInterval(0, maxX),
       y: 0
     };
-    this.fallingBalls.push(newBallPosition);
-    this.ballSubject.next({ balls: [...this.fallingBalls] });
+    this._fallingBalls.push(newBallPosition);
+    this.ballSubject.next({ balls: [...this._fallingBalls] });
   }
 
   public movePlayerLeft(speed: number): void {
@@ -124,13 +128,12 @@ export class MechanicService {
   private checkForCollisions(): number {
     let collapsedBallsCount = 0;
 
-    this.fallingBalls = this.fallingBalls.filter((ball: Position) => {
+    this._fallingBalls = this._fallingBalls.filter((ball: Position) => {
       const hasCollapsed = checkCollision(
         { x: ball.x, y: ball.y },
         { x: this._playerMovement.x, y: this._player.y },
-        this._player.offsetHeight,
         this._player.offsetWidth,
-        30
+        60
       );
 
       if (hasCollapsed) {
